@@ -279,8 +279,11 @@ export default function Careers() {
               const form = e.currentTarget as HTMLFormElement;
               const formData = new FormData(form);
               
-              // Check all required files are present
-              const requiredFields: (keyof FileUploadState)[] = ['resume', 'passport', 'visa', 'drivingLicence', 'policeClearance', 'addressProof'];
+              // Check required files based on international status
+              const requiredFields: (keyof FileUploadState)[] = ['resume', 'drivingLicence', 'policeClearance', 'addressProof'];
+              if (isInternational === "yes") {
+                requiredFields.push('passport', 'visa');
+              }
               const missingFields = requiredFields.filter(field => !files[field]);
               if (missingFields.length > 0) {
                 alert(`Please upload the following required files: ${missingFields.map(field => {
