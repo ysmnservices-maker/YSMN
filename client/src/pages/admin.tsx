@@ -54,6 +54,15 @@ interface AboutFeature {
   icon: string;
 }
 
+interface Staff {
+  id: number;
+  username: string;
+  password: string;
+  name: string;
+  role: string;
+  email: string;
+}
+
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -101,6 +110,25 @@ export default function Admin() {
       title: "Family-Owned Business",
       description: "We treat every client like family",
       icon: "Users",
+    },
+  ]);
+
+  const [staff, setStaff] = useState<Staff[]>([
+    {
+      id: 1,
+      username: "john.staff",
+      password: "Staff@123",
+      name: "John Smith",
+      role: "Cleaning Supervisor",
+      email: "john@ysmn.com",
+    },
+    {
+      id: 2,
+      username: "sarah.staff",
+      password: "Staff@123",
+      name: "Sarah Johnson",
+      role: "Care Coordinator",
+      email: "sarah@ysmn.com",
     },
   ]);
 
@@ -180,9 +208,10 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs defaultValue="services" value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-6 md:grid-cols-7">
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+            <TabsTrigger value="staff">Staff Portal</TabsTrigger>
             <TabsTrigger value="about">About Page</TabsTrigger>
             <TabsTrigger value="images">Images</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -332,6 +361,93 @@ export default function Admin() {
                           <TableCell className="font-medium">{testimonial.name}</TableCell>
                           <TableCell>{testimonial.title}</TableCell>
                           <TableCell>{testimonial.rating} Stars</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button size="sm" variant="outline">
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Staff Management */}
+          <TabsContent value="staff">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Staff Portal Management</h2>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Add New Staff</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Staff Member</DialogTitle>
+                      <DialogDescription>
+                        Add a new staff member with login credentials
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-staff-name">Full Name</Label>
+                        <Input id="new-staff-name" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-staff-username">Username</Label>
+                        <Input id="new-staff-username" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-staff-password">Password</Label>
+                        <Input id="new-staff-password" type="password" placeholder="Staff@123" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-staff-role">Role</Label>
+                        <Input id="new-staff-role" placeholder="e.g., Cleaning Supervisor" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-staff-email">Email</Label>
+                        <Input id="new-staff-email" type="email" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Save Staff</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Staff Credentials</CardTitle>
+                  <CardDescription>Current staff and their login details</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Username</TableHead>
+                        <TableHead>Password</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {staff.map((member) => (
+                        <TableRow key={member.id}>
+                          <TableCell className="font-medium">{member.name}</TableCell>
+                          <TableCell className="font-mono text-sm">{member.username}</TableCell>
+                          <TableCell className="font-mono text-sm text-gray-600">{member.password}</TableCell>
+                          <TableCell>{member.role}</TableCell>
+                          <TableCell className="text-sm">{member.email}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button size="sm" variant="outline">
                               Edit
