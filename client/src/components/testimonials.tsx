@@ -1,61 +1,26 @@
 import { motion } from "framer-motion";
 import { Star, Users, Leaf, Clock, DollarSign } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getWebsiteData } from "@/lib/storage";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Michael Chen",
-    title: "Business Owner",
-    content: "YSMN completely transformed our office space! The attention to detail was incredible, and our workspace has never looked this clean. Highly recommend their professional services!",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-    rating: 5
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    title: "Homeowner",
-    content: "From the moment they arrived, I knew I was in good hands. YSMN's team was efficient, meticulous, and left my home looking brand new. Couldn't be happier!",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b742?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-    rating: 5
-  },
-  {
-    id: 3,
-    name: "David Rodriguez",
-    title: "Property Manager",
-    content: "I've used many cleaning services before, but YSMN is by far the best. They left every corner spotless, and the fresh feeling lasted for days. Five stars!",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-    rating: 5
-  }
-];
-
-const whyChooseUs = [
-  {
-    id: "family-values",
-    title: "Family Values",
-    description: "As a family-owned business, we treat every client like family with honesty, integrity, and genuine care.",
-    icon: Users,
-  },
-  {
-    id: "eco-friendly",
-    title: "Eco-Friendly",
-    description: "We use environmentally friendly products and practices to ensure safety for you, your family, and the planet.",
-    icon: Leaf,
-  },
-  {
-    id: "reliable",
-    title: "Reliable & Punctual",
-    description: "Our experienced staff is thoroughly trained and committed to punctuality, professionalism, and attention to detail.",
-    icon: Clock,
-  },
-  {
-    id: "affordable",
-    title: "Affordable Pricing",
-    description: "Quality cleaning shouldn't break the bank. We offer competitive rates without compromising service quality.",
-    icon: DollarSign,
-  }
-];
+// Create icon map
+const iconMap: Record<string, any> = {
+  Users,
+  Leaf,
+  Clock,
+  DollarSign,
+};
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState(() => getWebsiteData().testimonials);
+  const [whyChooseUs, setWhyChooseUs] = useState(() => getWebsiteData().whyChooseUs);
+
+  useEffect(() => {
+    const data = getWebsiteData();
+    setTestimonials(data.testimonials);
+    setWhyChooseUs(data.whyChooseUs);
+  }, []);
+
   return (
     <>
       {/* Why Choose Us Section */}
@@ -81,7 +46,7 @@ export default function Testimonials() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {whyChooseUs.map((benefit, index) => {
-              const Icon = benefit.icon;
+              const Icon = iconMap[benefit.iconName] || Users;
               return (
                 <motion.div
                   key={benefit.id}

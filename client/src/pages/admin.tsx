@@ -29,178 +29,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  getWebsiteData,
+  setWebsiteData,
+  type WebsiteData,
+  type Service,
+  type Testimonial,
+  type WhyChooseUsItem,
+  type Staff,
+  type JobOpportunity,
+} from "@/lib/storage";
 
-// Types
-interface Service {
-  id: string;
-  title: string;
-  description: string;
-  rating: number;
-  reviews: number;
-}
-
-interface Testimonial {
-  id: number;
-  name: string;
-  title: string;
-  content: string;
-  rating: number;
-}
-
-interface AboutFeature {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-}
-
-interface Staff {
-  id: number;
-  username: string;
-  password: string;
-  name: string;
-  role: string;
-  email: string;
-}
-
-interface JobOpportunity {
-  id: number;
-  title: string;
-  description: string;
-  location: string;
-  type: string;
-  requirements: string;
-}
-
-// Local Storage keys
-const STORAGE_KEYS = {
-  SERVICES: "ysmn_services",
-  TESTIMONIALS: "ysmn_testimonials",
-  STAFF: "ysmn_staff",
-  ABOUT_FEATURES: "ysmn_about_features",
-  JOB_OPPORTUNITIES: "ysmn_job_opportunities",
-};
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "YSMN@2025";
 
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState("services");
+  const [data, setData] = useState<WebsiteData>(() => getWebsiteData());
 
-  // Initialize state from localStorage
-  const [services, setServices] = useState<Service[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SERVICES);
-    return saved ? JSON.parse(saved) : [
-      {
-        id: "domestic",
-        title: "Domestic Cleaning Perth",
-        description: "Professional domestic cleaning services in Perth",
-        rating: 4.9,
-        reviews: 120,
-      },
-      {
-        id: "commercial",
-        title: "Commercial Cleaning Services Perth",
-        description: "Professional commercial cleaning services in Perth",
-        rating: 4.8,
-        reviews: 85,
-      },
-    ];
-  });
-
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.TESTIMONIALS);
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        name: "Michael Chen",
-        title: "Business Owner",
-        content: "YSMN completely transformed our office space!",
-        rating: 5,
-      },
-      {
-        id: 2,
-        name: "Sarah Johnson",
-        title: "Homeowner",
-        content: "From the moment they arrived, I knew I was in good hands!",
-        rating: 5,
-      },
-    ];
-  });
-
-  const [aboutFeatures, setAboutFeatures] = useState<AboutFeature[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.ABOUT_FEATURES);
-    return saved ? JSON.parse(saved) : [
-      {
-        id: "family-owned",
-        title: "Family-Owned Business",
-        description: "We treat every client like family",
-        icon: "Users",
-      },
-    ];
-  });
-
-  const [staff, setStaff] = useState<Staff[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.STAFF);
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [jobOpportunities, setJobOpportunities] = useState<JobOpportunity[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.JOB_OPPORTUNITIES);
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Save to localStorage whenever state changes
+  // Save data to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
-  }, [services]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(testimonials));
-  }, [testimonials]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staff));
-  }, [staff]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.ABOUT_FEATURES, JSON.stringify(aboutFeatures));
-  }, [aboutFeatures]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.JOB_OPPORTUNITIES, JSON.stringify(jobOpportunities));
-  }, [jobOpportunities]);
-
-  const ADMIN_USERNAME = "admin";
-  const ADMIN_PASSWORD = "YSMN@2025";
+    setWebsiteData(data);
+  }, [data]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Entered Username:", username, "Entered Password:", password);
-    console.log("Expected Username:", ADMIN_USERNAME, "Expected Password:", ADMIN_PASSWORD);
     if (username.trim() === ADMIN_USERNAME && password.trim() === ADMIN_PASSWORD) {
       setIsLoggedIn(true);
     } else {
       alert("Invalid credentials! Please try again.");
     }
-  };
-
-  // Staff management functions
-  const addStaff = (newStaff: Omit<Staff, "id">) => {
-    setStaff([...staff, { ...newStaff, id: Date.now() }]);
-  };
-
-  const deleteStaff = (id: number) => {
-    setStaff(staff.filter(s => s.id !== id));
-  };
-
-  // Job opportunities management functions
-  const addJobOpportunity = (job: Omit<JobOpportunity, "id">) => {
-    setJobOpportunities([...jobOpportunities, { ...job, id: Date.now() }]);
-  };
-
-  const deleteJobOpportunity = (id: number) => {
-    setJobOpportunities(jobOpportunities.filter(j => j.id !== id));
   };
 
   const handleLogout = () => {
@@ -267,6 +128,7 @@ export default function Admin() {
           <TabsList className="grid w-full grid-cols-7 md:grid-cols-8">
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+            <TabsTrigger value="why-choose-us">Why Choose Us</TabsTrigger>
             <TabsTrigger value="staff">Staff Portal</TabsTrigger>
             <TabsTrigger value="jobs">Job Opportunities</TabsTrigger>
             <TabsTrigger value="about">About Page</TabsTrigger>
@@ -279,57 +141,23 @@ export default function Admin() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900">Services Management</h2>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>Add New Service</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Service</DialogTitle>
-                      <DialogDescription>
-                        Create a new service to display on your website
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-service-title">Service Title</Label>
-                        <Input id="new-service-title" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-service-desc">Description</Label>
-                        <Textarea id="new-service-desc" />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="new-service-rating">Rating</Label>
-                          <Input id="new-service-rating" type="number" step="0.1" min="0" max="5" />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="new-service-reviews">Reviews</Label>
-                          <Input id="new-service-reviews" type="number" min="0" />
-                        </div>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Save Service</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <AddServiceDialog
+                  onAdd={(service) => setData({ ...data, services: [...data.services, service] })}
+                />
               </div>
-
               <Card>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Service Name</TableHead>
+                        <TableHead>Service Title</TableHead>
                         <TableHead>Rating</TableHead>
                         <TableHead>Reviews</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {services.map((service) => (
+                      {data.services.map((service) => (
                         <TableRow key={service.id}>
                           <TableCell className="font-medium">{service.title}</TableCell>
                           <TableCell>{service.rating}</TableCell>
@@ -338,7 +166,16 @@ export default function Admin() {
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() =>
+                                setData({
+                                  ...data,
+                                  services: data.services.filter((s) => s.id !== service.id),
+                                })
+                              }
+                            >
                               Delete
                             </Button>
                           </TableCell>
@@ -356,51 +193,12 @@ export default function Admin() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900">Testimonials Management</h2>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>Add New Testimonial</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Testimonial</DialogTitle>
-                      <DialogDescription>
-                        Add a new client testimonial to your website
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-testimonial-name">Client Name</Label>
-                        <Input id="new-testimonial-name" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-testimonial-title">Title</Label>
-                        <Input id="new-testimonial-title" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-testimonial-content">Testimonial</Label>
-                        <Textarea id="new-testimonial-content" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-testimonial-rating">Rating</Label>
-                        <Select defaultValue="5">
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5">5 Stars</SelectItem>
-                            <SelectItem value="4">4 Stars</SelectItem>
-                            <SelectItem value="3">3 Stars</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Save Testimonial</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <AddTestimonialDialog
+                  onAdd={(testimonial) =>
+                    setData({ ...data, testimonials: [...data.testimonials, testimonial] })
+                  }
+                />
               </div>
-
               <Card>
                 <CardContent className="p-0">
                   <Table>
@@ -413,7 +211,7 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {testimonials.map((testimonial) => (
+                      {data.testimonials.map((testimonial) => (
                         <TableRow key={testimonial.id}>
                           <TableCell className="font-medium">{testimonial.name}</TableCell>
                           <TableCell>{testimonial.title}</TableCell>
@@ -422,7 +220,66 @@ export default function Admin() {
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() =>
+                                setData({
+                                  ...data,
+                                  testimonials: data.testimonials.filter(
+                                    (t) => t.id !== testimonial.id
+                                  ),
+                                })
+                              }
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Why Choose Us Management */}
+          <TabsContent value="why-choose-us">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Why Choose Us Management</h2>
+                <AddWhyChooseUsDialog
+                  onAdd={(item) => setData({ ...data, whyChooseUs: [...data.whyChooseUs, item] })}
+                />
+              </div>
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data.whyChooseUs.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.title}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button size="sm" variant="outline">
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() =>
+                                setData({
+                                  ...data,
+                                  whyChooseUs: data.whyChooseUs.filter((i) => i.id !== item.id),
+                                })
+                              }
+                            >
                               Delete
                             </Button>
                           </TableCell>
@@ -440,7 +297,9 @@ export default function Admin() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900">Staff Portal Management</h2>
-                <AddStaffDialog onAddStaff={addStaff} />
+                <AddStaffDialog
+                  onAdd={(staff) => setData({ ...data, staff: [...data.staff, staff] })}
+                />
               </div>
 
               <Card>
@@ -461,18 +320,29 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {staff.map((member) => (
+                      {data.staff.map((member) => (
                         <TableRow key={member.id}>
                           <TableCell className="font-medium">{member.name}</TableCell>
                           <TableCell className="font-mono text-sm">{member.username}</TableCell>
-                          <TableCell className="font-mono text-sm text-gray-600">{member.password}</TableCell>
+                          <TableCell className="font-mono text-sm text-gray-600">
+                            {member.password}
+                          </TableCell>
                           <TableCell>{member.role}</TableCell>
                           <TableCell className="text-sm">{member.email}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => deleteStaff(member.id)}>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() =>
+                                setData({
+                                  ...data,
+                                  staff: data.staff.filter((s) => s.id !== member.id),
+                                })
+                              }
+                            >
                               Delete
                             </Button>
                           </TableCell>
@@ -490,7 +360,11 @@ export default function Admin() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900">Job Opportunities Management</h2>
-                <AddJobDialog onAddJob={addJobOpportunity} />
+                <AddJobDialog
+                  onAdd={(job) =>
+                    setData({ ...data, jobOpportunities: [...data.jobOpportunities, job] })
+                  }
+                />
               </div>
 
               <Card>
@@ -505,7 +379,7 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {jobOpportunities.map((job) => (
+                      {data.jobOpportunities.map((job) => (
                         <TableRow key={job.id}>
                           <TableCell className="font-medium">{job.title}</TableCell>
                           <TableCell>{job.location}</TableCell>
@@ -514,7 +388,18 @@ export default function Admin() {
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => deleteJobOpportunity(job.id)}>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() =>
+                                setData({
+                                  ...data,
+                                  jobOpportunities: data.jobOpportunities.filter(
+                                    (j) => j.id !== job.id
+                                  ),
+                                })
+                              }
+                            >
                               Delete
                             </Button>
                           </TableCell>
@@ -535,44 +420,7 @@ export default function Admin() {
                 <CardDescription>Edit the content shown on the About page</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="about-title">Main Title</Label>
-                    <Input id="about-title" defaultValue="Our Trusted Partner for a Clean, Healthy Space" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="about-desc1">Description Paragraph 1</Label>
-                    <Textarea id="about-desc1" defaultValue="YSMN Complete Care and Support Services is a proud, family-owned business serving Perth and surrounding areas." />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="about-desc2">Description Paragraph 2</Label>
-                    <Textarea id="about-desc2" defaultValue="Our team of experienced professionals is dedicated to creating spotless, healthy environments." />
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <h3 className="text-lg font-semibold mb-4">Features</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Feature Title</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {aboutFeatures.map((feature) => (
-                        <TableRow key={feature.id}>
-                          <TableCell className="font-medium">{feature.title}</TableCell>
-                          <TableCell className="text-right space-x-2">
-                            <Button size="sm" variant="outline">Edit</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                <Button className="mt-4">Save Changes</Button>
+                <Button className="w-full md:w-auto">Save Changes</Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -586,22 +434,6 @@ export default function Admin() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="heroImage">Hero Background</Label>
-                    <Input id="heroImage" type="file" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="aboutImage">About Page Image</Label>
-                    <Input id="aboutImage" type="file" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="logoImage">Logo</Label>
-                    <Input id="logoImage" type="file" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="teamImage">Team Photo</Label>
-                    <Input id="teamImage" type="file" />
-                  </div>
                   <Button className="w-full md:w-auto">Save Changes</Button>
                 </div>
               </CardContent>
@@ -616,28 +448,6 @@ export default function Admin() {
                 <CardDescription>Update contact info and business details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="businessName">Business Name</Label>
-                    <Input id="businessName" defaultValue="YSMN Complete Care and Support Services" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="businessEmail">Email</Label>
-                    <Input id="businessEmail" defaultValue="ysmnmanpowerservices@gmail.com" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="businessPhone">Phone</Label>
-                    <Input id="businessPhone" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="businessAddress">Address</Label>
-                    <Input id="businessAddress" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="primaryColor">Primary Color</Label>
-                    <Input id="primaryColor" type="color" defaultValue="#800080" />
-                  </div>
-                </div>
                 <Button className="w-full md:w-auto mt-4">Save Settings</Button>
               </CardContent>
             </Card>
@@ -648,8 +458,265 @@ export default function Admin() {
   );
 }
 
+// Add Service Dialog Component
+function AddServiceDialog({ onAdd }: { onAdd: (service: Service) => void }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [iconName, setIconName] = useState("Home");
+  const [image, setImage] = useState("");
+  const [gradient, setGradient] = useState("gradient-primary");
+  const [link, setLink] = useState("");
+  const [rating, setRating] = useState(4.9);
+  const [reviews, setReviews] = useState(100);
+
+  const handleSave = () => {
+    onAdd({
+      id: title.toLowerCase().replace(/\s+/g, "-"),
+      title,
+      description,
+      iconName,
+      image,
+      gradient,
+      link,
+      rating,
+      reviews,
+    });
+    setOpen(false);
+    setTitle("");
+    setDescription("");
+    setIconName("Home");
+    setImage("");
+    setGradient("gradient-primary");
+    setLink("");
+    setRating(4.9);
+    setReviews(100);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Add New Service</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Service</DialogTitle>
+          <DialogDescription>Create a new service to display on your website</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="new-service-title">Service Title</Label>
+            <Input id="new-service-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-service-desc">Description</Label>
+            <Textarea
+              id="new-service-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-service-icon">Icon</Label>
+            <Select value={iconName} onValueChange={setIconName}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Home">Home</SelectItem>
+                <SelectItem value="Building">Building</SelectItem>
+                <SelectItem value="Leaf">Leaf</SelectItem>
+                <SelectItem value="Waves">Waves</SelectItem>
+                <SelectItem value="Sparkles">Sparkles</SelectItem>
+                <SelectItem value="Users">Users</SelectItem>
+                <SelectItem value="Heart">Heart</SelectItem>
+                <SelectItem value="Activity">Activity</SelectItem>
+                <SelectItem value="Stethoscope">Stethoscope</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="new-service-rating">Rating</Label>
+              <Input
+                id="new-service-rating"
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                value={rating}
+                onChange={(e) => setRating(parseFloat(e.target.value))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="new-service-reviews">Reviews</Label>
+              <Input
+                id="new-service-reviews"
+                type="number"
+                min="0"
+                value={reviews}
+                onChange={(e) => setReviews(parseInt(e.target.value))}
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={handleSave}>
+            Save Service
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add Testimonial Dialog Component
+function AddTestimonialDialog({ onAdd }: { onAdd: (testimonial: Testimonial) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [rating, setRating] = useState(5);
+  const [image, setImage] = useState("");
+
+  const handleSave = () => {
+    onAdd({
+      id: Date.now(),
+      name,
+      title,
+      content,
+      rating,
+      image,
+    });
+    setOpen(false);
+    setName("");
+    setTitle("");
+    setContent("");
+    setRating(5);
+    setImage("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Add New Testimonial</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Testimonial</DialogTitle>
+          <DialogDescription>Add a new client testimonial to your website</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="new-testimonial-name">Client Name</Label>
+            <Input id="new-testimonial-name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-testimonial-title">Title</Label>
+            <Input id="new-testimonial-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-testimonial-content">Testimonial</Label>
+            <Textarea
+              id="new-testimonial-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-testimonial-rating">Rating</Label>
+            <Select value={rating.toString()} onValueChange={(v) => setRating(parseInt(v))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5 Stars</SelectItem>
+                <SelectItem value="4">4 Stars</SelectItem>
+                <SelectItem value="3">3 Stars</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={handleSave}>
+            Save Testimonial
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add Why Choose Us Dialog Component
+function AddWhyChooseUsDialog({ onAdd }: { onAdd: (item: WhyChooseUsItem) => void }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [iconName, setIconName] = useState("Users");
+
+  const handleSave = () => {
+    onAdd({
+      id: title.toLowerCase().replace(/\s+/g, "-"),
+      title,
+      description,
+      iconName,
+    });
+    setOpen(false);
+    setTitle("");
+    setDescription("");
+    setIconName("Users");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Add New Item</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Why Choose Us Item</DialogTitle>
+          <DialogDescription>Add a new item to the Why Choose Us section</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="new-why-title">Title</Label>
+            <Input id="new-why-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-why-desc">Description</Label>
+            <Textarea
+              id="new-why-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-why-icon">Icon</Label>
+            <Select value={iconName} onValueChange={setIconName}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Users">Users</SelectItem>
+                <SelectItem value="Leaf">Leaf</SelectItem>
+                <SelectItem value="Clock">Clock</SelectItem>
+                <SelectItem value="DollarSign">DollarSign</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={handleSave}>
+            Save Item
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Add Staff Dialog Component
-function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
+function AddStaffDialog({ onAdd }: { onAdd: (staff: Staff) => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -658,7 +725,14 @@ function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
   const [email, setEmail] = useState("");
 
   const handleSave = () => {
-    onAddStaff({ name, username, password, role, email });
+    onAdd({
+      id: Date.now(),
+      name,
+      username,
+      password,
+      role,
+      email,
+    });
     setOpen(false);
     setName("");
     setUsername("");
@@ -675,9 +749,7 @@ function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Staff Member</DialogTitle>
-          <DialogDescription>
-            Add a new staff member with login credentials
-          </DialogDescription>
+          <DialogDescription>Add a new staff member with login credentials</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="grid gap-2">
@@ -690,19 +762,31 @@ function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-staff-password">Password</Label>
-            <Input id="new-staff-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input
+              id="new-staff-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-staff-role">Role</Label>
-            <Input id="new-staff-role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g., Cleaning Supervisor" />
+            <Input id="new-staff-role" value={role} onChange={(e) => setRole(e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-staff-email">Email</Label>
-            <Input id="new-staff-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="new-staff-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleSave}>Save Staff</Button>
+          <Button type="button" onClick={handleSave}>
+            Save Staff
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -710,7 +794,7 @@ function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
 }
 
 // Add Job Dialog Component
-function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
+function AddJobDialog({ onAdd }: { onAdd: (job: JobOpportunity) => void }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -719,7 +803,14 @@ function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
   const [requirements, setRequirements] = useState("");
 
   const handleSave = () => {
-    onAddJob({ title, description, location, type, requirements });
+    onAdd({
+      id: Date.now(),
+      title,
+      description,
+      location,
+      type,
+      requirements,
+    });
     setOpen(false);
     setTitle("");
     setDescription("");
@@ -736,9 +827,7 @@ function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Job Opportunity</DialogTitle>
-          <DialogDescription>
-            Create a new job opening
-          </DialogDescription>
+          <DialogDescription>Create a new job opening</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="grid gap-2">
@@ -746,8 +835,12 @@ function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
             <Input id="new-job-title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="new-job-description">Description</Label>
-            <Textarea id="new-job-description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="new-job-desc">Description</Label>
+            <Textarea
+              id="new-job-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-job-location">Location</Label>
@@ -769,11 +862,17 @@ function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-job-requirements">Requirements</Label>
-            <Textarea id="new-job-requirements" value={requirements} onChange={(e) => setRequirements(e.target.value)} />
+            <Textarea
+              id="new-job-requirements"
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleSave}>Save Job</Button>
+          <Button type="button" onClick={handleSave}>
+            Save Job
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

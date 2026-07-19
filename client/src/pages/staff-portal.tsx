@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 import ysmnLogo from "@assets/4927272A-D193-435F-A5B0-4F2E306C9D55 (1)_1756472323570.png";
+import { getWebsiteData } from "@/lib/storage";
 
 interface Staff {
   id: number;
@@ -24,12 +25,10 @@ export default function StaffPortal() {
   const [error, setError] = useState("");
   const [staffMembers, setStaffMembers] = useState<Staff[]>([]);
 
-  // Load staff from localStorage
+  // Load staff from localStorage using our storage.ts function
   useEffect(() => {
-    const saved = localStorage.getItem("ysmn_staff");
-    if (saved) {
-      setStaffMembers(JSON.parse(saved));
-    }
+    const data = getWebsiteData();
+    setStaffMembers(data.staff);
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
