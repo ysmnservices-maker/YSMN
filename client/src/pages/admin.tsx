@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,85 +63,144 @@ interface Staff {
   email: string;
 }
 
+interface JobOpportunity {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  type: string;
+  requirements: string;
+}
+
+// Local Storage keys
+const STORAGE_KEYS = {
+  SERVICES: "ysmn_services",
+  TESTIMONIALS: "ysmn_testimonials",
+  STAFF: "ysmn_staff",
+  ABOUT_FEATURES: "ysmn_about_features",
+  JOB_OPPORTUNITIES: "ysmn_job_opportunities",
+};
+
 export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState("services");
 
-  // Sample data
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: "domestic",
-      title: "Domestic Cleaning Perth",
-      description: "Professional domestic cleaning services in Perth",
-      rating: 4.9,
-      reviews: 120,
-    },
-    {
-      id: "commercial",
-      title: "Commercial Cleaning Services Perth",
-      description: "Professional commercial cleaning services in Perth",
-      rating: 4.8,
-      reviews: 85,
-    },
-  ]);
+  // Initialize state from localStorage
+  const [services, setServices] = useState<Service[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.SERVICES);
+    return saved ? JSON.parse(saved) : [
+      {
+        id: "domestic",
+        title: "Domestic Cleaning Perth",
+        description: "Professional domestic cleaning services in Perth",
+        rating: 4.9,
+        reviews: 120,
+      },
+      {
+        id: "commercial",
+        title: "Commercial Cleaning Services Perth",
+        description: "Professional commercial cleaning services in Perth",
+        rating: 4.8,
+        reviews: 85,
+      },
+    ];
+  });
 
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([
-    {
-      id: 1,
-      name: "Michael Chen",
-      title: "Business Owner",
-      content: "YSMN completely transformed our office space!",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Sarah Johnson",
-      title: "Homeowner",
-      content: "From the moment they arrived, I knew I was in good hands!",
-      rating: 5,
-    },
-  ]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.TESTIMONIALS);
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        name: "Michael Chen",
+        title: "Business Owner",
+        content: "YSMN completely transformed our office space!",
+        rating: 5,
+      },
+      {
+        id: 2,
+        name: "Sarah Johnson",
+        title: "Homeowner",
+        content: "From the moment they arrived, I knew I was in good hands!",
+        rating: 5,
+      },
+    ];
+  });
 
-  const [aboutFeatures, setAboutFeatures] = useState<AboutFeature[]>([
-    {
-      id: "family-owned",
-      title: "Family-Owned Business",
-      description: "We treat every client like family",
-      icon: "Users",
-    },
-  ]);
+  const [aboutFeatures, setAboutFeatures] = useState<AboutFeature[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ABOUT_FEATURES);
+    return saved ? JSON.parse(saved) : [
+      {
+        id: "family-owned",
+        title: "Family-Owned Business",
+        description: "We treat every client like family",
+        icon: "Users",
+      },
+    ];
+  });
 
-  const [staff, setStaff] = useState<Staff[]>([
-    {
-      id: 1,
-      username: "john.staff",
-      password: "Staff@123",
-      name: "John Smith",
-      role: "Cleaning Supervisor",
-      email: "john@ysmn.com",
-    },
-    {
-      id: 2,
-      username: "sarah.staff",
-      password: "Staff@123",
-      name: "Sarah Johnson",
-      role: "Care Coordinator",
-      email: "sarah@ysmn.com",
-    },
-  ]);
+  const [staff, setStaff] = useState<Staff[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.STAFF);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [jobOpportunities, setJobOpportunities] = useState<JobOpportunity[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.JOB_OPPORTUNITIES);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(services));
+  }, [services]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(testimonials));
+  }, [testimonials]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staff));
+  }, [staff]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ABOUT_FEATURES, JSON.stringify(aboutFeatures));
+  }, [aboutFeatures]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.JOB_OPPORTUNITIES, JSON.stringify(jobOpportunities));
+  }, [jobOpportunities]);
 
   const ADMIN_USERNAME = "admin";
   const ADMIN_PASSWORD = "YSMN@2025";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    console.log("Entered Username:", username, "Entered Password:", password);
+    console.log("Expected Username:", ADMIN_USERNAME, "Expected Password:", ADMIN_PASSWORD);
+    if (username.trim() === ADMIN_USERNAME && password.trim() === ADMIN_PASSWORD) {
       setIsLoggedIn(true);
     } else {
       alert("Invalid credentials! Please try again.");
     }
+  };
+
+  // Staff management functions
+  const addStaff = (newStaff: Omit<Staff, "id">) => {
+    setStaff([...staff, { ...newStaff, id: Date.now() }]);
+  };
+
+  const deleteStaff = (id: number) => {
+    setStaff(staff.filter(s => s.id !== id));
+  };
+
+  // Job opportunities management functions
+  const addJobOpportunity = (job: Omit<JobOpportunity, "id">) => {
+    setJobOpportunities([...jobOpportunities, { ...job, id: Date.now() }]);
+  };
+
+  const deleteJobOpportunity = (id: number) => {
+    setJobOpportunities(jobOpportunities.filter(j => j.id !== id));
   };
 
   const handleLogout = () => {
@@ -156,9 +215,8 @@ export default function Admin() {
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
-            <CardDescription className="text-center text-sm space-y-1">
-              <p>Enter your credentials to access the admin panel</p>
-              <p className="text-xs text-gray-500 font-medium">Default: Username "admin" / Password "YSMN@2025"</p>
+            <CardDescription className="text-center text-sm">
+              Enter your credentials to access the admin panel
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -169,7 +227,6 @@ export default function Admin() {
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin"
                   required
                 />
               </div>
@@ -180,7 +237,6 @@ export default function Admin() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="YSMN@2025"
                   required
                 />
               </div>
@@ -208,10 +264,11 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs defaultValue="services" value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 md:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-7 md:grid-cols-8">
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
             <TabsTrigger value="staff">Staff Portal</TabsTrigger>
+            <TabsTrigger value="jobs">Job Opportunities</TabsTrigger>
             <TabsTrigger value="about">About Page</TabsTrigger>
             <TabsTrigger value="images">Images</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -383,44 +440,7 @@ export default function Admin() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900">Staff Portal Management</h2>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>Add New Staff</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Staff Member</DialogTitle>
-                      <DialogDescription>
-                        Add a new staff member with login credentials
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-staff-name">Full Name</Label>
-                        <Input id="new-staff-name" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-staff-username">Username</Label>
-                        <Input id="new-staff-username" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-staff-password">Password</Label>
-                        <Input id="new-staff-password" type="password" placeholder="Staff@123" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-staff-role">Role</Label>
-                        <Input id="new-staff-role" placeholder="e.g., Cleaning Supervisor" />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="new-staff-email">Email</Label>
-                        <Input id="new-staff-email" type="email" />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Save Staff</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <AddStaffDialog onAddStaff={addStaff} />
               </div>
 
               <Card>
@@ -452,7 +472,49 @@ export default function Admin() {
                             <Button size="sm" variant="outline">
                               Edit
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button size="sm" variant="destructive" onClick={() => deleteStaff(member.id)}>
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Job Opportunities Management */}
+          <TabsContent value="jobs">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Job Opportunities Management</h2>
+                <AddJobDialog onAddJob={addJobOpportunity} />
+              </div>
+
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Job Title</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {jobOpportunities.map((job) => (
+                        <TableRow key={job.id}>
+                          <TableCell className="font-medium">{job.title}</TableCell>
+                          <TableCell>{job.location}</TableCell>
+                          <TableCell>{job.type}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button size="sm" variant="outline">
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => deleteJobOpportunity(job.id)}>
                               Delete
                             </Button>
                           </TableCell>
@@ -583,5 +645,137 @@ export default function Admin() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+// Add Staff Dialog Component
+function AddStaffDialog({ onAddStaff }: { onAddStaff: (staff: any) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [email, setEmail] = useState("");
+
+  const handleSave = () => {
+    onAddStaff({ name, username, password, role, email });
+    setOpen(false);
+    setName("");
+    setUsername("");
+    setPassword("");
+    setRole("");
+    setEmail("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Add New Staff</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Staff Member</DialogTitle>
+          <DialogDescription>
+            Add a new staff member with login credentials
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="new-staff-name">Full Name</Label>
+            <Input id="new-staff-name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-staff-username">Username</Label>
+            <Input id="new-staff-username" value={username} onChange={(e) => setUsername(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-staff-password">Password</Label>
+            <Input id="new-staff-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-staff-role">Role</Label>
+            <Input id="new-staff-role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g., Cleaning Supervisor" />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-staff-email">Email</Label>
+            <Input id="new-staff-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={handleSave}>Save Staff</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add Job Dialog Component
+function AddJobDialog({ onAddJob }: { onAddJob: (job: any) => void }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [type, setType] = useState("Full-time");
+  const [requirements, setRequirements] = useState("");
+
+  const handleSave = () => {
+    onAddJob({ title, description, location, type, requirements });
+    setOpen(false);
+    setTitle("");
+    setDescription("");
+    setLocation("");
+    setType("Full-time");
+    setRequirements("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Add New Job</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Job Opportunity</DialogTitle>
+          <DialogDescription>
+            Create a new job opening
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="new-job-title">Job Title</Label>
+            <Input id="new-job-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-job-description">Description</Label>
+            <Textarea id="new-job-description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-job-location">Location</Label>
+            <Input id="new-job-location" value={location} onChange={(e) => setLocation(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-job-type">Job Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Full-time">Full-time</SelectItem>
+                <SelectItem value="Part-time">Part-time</SelectItem>
+                <SelectItem value="Casual">Casual</SelectItem>
+                <SelectItem value="Contract">Contract</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="new-job-requirements">Requirements</Label>
+            <Textarea id="new-job-requirements" value={requirements} onChange={(e) => setRequirements(e.target.value)} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={handleSave}>Save Job</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

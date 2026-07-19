@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,36 +7,34 @@ import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 import ysmnLogo from "@assets/4927272A-D193-435F-A5B0-4F2E306C9D55 (1)_1756472323570.png";
 
-// Sample staff data (matches admin portal)
-const STAFF_MEMBERS = [
-  {
-    id: 1,
-    username: "john.staff",
-    password: "Staff@123",
-    name: "John Smith",
-    role: "Cleaning Supervisor",
-    email: "john@ysmn.com",
-  },
-  {
-    id: 2,
-    username: "sarah.staff",
-    password: "Staff@123",
-    name: "Sarah Johnson",
-    role: "Care Coordinator",
-    email: "sarah@ysmn.com",
-  },
-];
+interface Staff {
+  id: number;
+  username: string;
+  password: string;
+  name: string;
+  role: string;
+  email: string;
+}
 
 export default function StaffPortal() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentStaff, setCurrentStaff] = useState<any>(null);
+  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [staffMembers, setStaffMembers] = useState<Staff[]>([]);
+
+  // Load staff from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("ysmn_staff");
+    if (saved) {
+      setStaffMembers(JSON.parse(saved));
+    }
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const staff = STAFF_MEMBERS.find(
+    const staff = staffMembers.find(
       (s) => s.username === username && s.password === password
     );
     
@@ -63,9 +61,6 @@ export default function StaffPortal() {
                   </div>
                   <CardTitle className="text-2xl">Staff Portal</CardTitle>
                   <CardDescription>Sign in to access your account</CardDescription>
-                  <CardDescription className="text-xs text-gray-500 mt-2">
-                    Default: john.staff / Staff@123 or sarah.staff / Staff@123
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLogin} className="space-y-4">
